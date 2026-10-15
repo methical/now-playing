@@ -3,7 +3,7 @@
 GNOME Shell 50 extension (ES modules, GJS). Shows `Artist – Title` plus prev / play-pause / next in the **left** panel box for the current MPRIS player. It is hidden unless something is playing, with an optional player whitelist.
 
 - UUID `now-playing@methical`, schema `org.gnome.shell.extensions.now-playing`.
-- Spec: `docs/superpowers/specs/2026-10-15-now-playing-design.md` (binding). Plan: `docs/superpowers/plans/2026-10-15-now-playing.md`.
+- The original design spec and implementation plan were removed to avoid rot; they remain in git history (`git log --diff-filter=D -- docs`). The rules below and the tests are the source of truth.
 
 ## Commands
 
@@ -15,6 +15,14 @@ make pack          # build the installable zip; add any new module to --extra-so
 ```
 
 Fake player for manual testing: `FAKE_NAME=x FAKE_TITLE=… FAKE_ARTIST=… FAKE_ART=file:///… FAKE_STATUS=Paused gjs -m tests/fake-player.js`. Its PlayPause, Next and Previous work.
+
+## Behavior rules
+
+- **Current player:** the pinned player if it is showable, else the most recently started playing player, else the most recently started paused-but-showable one. Pinning is cleared when the pinned player stops or quits.
+- **Visibility:** shown while Playing. After a pause it stays for `pause-hide-delay` seconds (0 = hide immediately) or indefinitely with `pause-hide-mode = never`. `Stopped` or a vanished player always hides. A player first seen already Paused counts as expired.
+- **Whitelist:** matches the bus-name suffix (`.instanceN` stripped, lowercased) or the player's `DesktopEntry`. Enabled with an empty list shows nothing, on purpose.
+- **Raise (cover click in the popup):** activate the app through the Shell using the MPRIS `DesktopEntry` first (focuses reliably on Wayland), else call MPRIS `Raise()` if `CanRaise`. With neither, the cover is not clickable.
+- **Marquee** ping-pongs: pause, scroll to the end, pause, scroll back, repeat. It only runs when the text overflows `max-width` and the player is playing.
 
 ## Architecture (what isn't obvious from filenames)
 
@@ -35,10 +43,16 @@ Fake player for manual testing: `FAKE_NAME=x FAKE_TITLE=… FAKE_ARTIST=… FAKE
 
 ## Verification rules
 
-- The extension has not been exercised in a real Shell by the agents that built it. Anything touching St/Clutter/PanelMenu/PopupMenu is **unverified at runtime**, so state that plainly.
+- Agents cannot run the Shell here. The maintainer has run v0.1.0 in a real session (panel, controls, popup, marquee, cover raise, zip install), but any new change touching St/Clutter/PanelMenu/PopupMenu is **unverified at runtime** until they try it, so state that plainly.
 - Never `gnome-extensions enable`, symlink into `~/.local/share/gnome-shell/extensions`, or touch dconf without the user's go-ahead. That loads code into their live session.
 - Wayland cannot reload extensions. Test in a nested shell (`gnome-shell --devkit`, needs `mutter-devkit`) or log out and in.
 - Don't commit `.superpowers/` (SDD scratch workspace, git-ignored).
+
+## Releasing
+
+1. Bump `version-name` in `metadata.json` and add a dated section to `CHANGELOG.md` (semantic versioning).
+2. `make test && make integration`, commit, then `git tag -a vX.Y.Z -m vX.Y.Z` and `git push origin main vX.Y.Z`.
+3. `make pack`, then `gh release create vX.Y.Z now-playing@methical.shell-extension.zip --title vX.Y.Z --notes-file <notes>`. Creating a release is public: only do it when the user asks.
 
 ## Conventions
 

@@ -23,14 +23,20 @@ GNOME Shell 50.
 
 ## Installation
 
-From a clone of this repository:
+Download `now-playing@methical.shell-extension.zip` from the [latest release](https://github.com/methical/now-playing/releases/latest) and install it:
+
+```bash
+gnome-extensions install --force now-playing@methical.shell-extension.zip
+```
+
+Or, from a clone of this repository:
 
 ```bash
 make schemas
 ln -s "$PWD" ~/.local/share/gnome-shell/extensions/now-playing@methical
 ```
 
-Or build and install a zip:
+Or build the zip yourself and install it:
 
 ```bash
 make pack
@@ -77,7 +83,7 @@ FAKE_TITLE="Karma Police" FAKE_ARTIST="Radiohead" gjs -m tests/fake-player.js
 
 `FAKE_NAME`, `FAKE_ART` (for example `file:///path/to/image.png`) and `FAKE_STATUS` (`Playing` or `Paused`) are also supported.
 
-The player logic (`tracker.js`, `util.js`) is free of Shell imports, which keeps it testable without a running Shell. See [`AGENTS.md`](AGENTS.md) for architecture notes and pitfalls, and `docs/superpowers/` for the design spec and implementation plan.
+The player logic (`tracker.js`, `util.js`) is free of Shell imports, which keeps it testable without a running Shell. See [`AGENTS.md`](AGENTS.md) for behavior rules, architecture notes and pitfalls.
 
 ## License
 

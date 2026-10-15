@@ -4,6 +4,12 @@ All notable changes to this project are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project follows
 [Semantic Versioning](https://semver.org/).
 
+## [0.1.2] - 2026-10-15
+
+### Fixed
+
+- The idle source scheduled by a cover click is now tracked and removed when the extension is disabled, as the extensions.gnome.org review guidelines require.
+
 ## [0.1.1] - 2026-10-15
 
 ### Fixed

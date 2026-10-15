@@ -30,6 +30,7 @@ class NowPlayingIndicator extends PanelMenu.Button {
         this._coverToken = 0;
         this._artUrl = null;
         this._refreshId = 0;
+        this._raiseId = 0;
         this._appliedOverflow = null;
         this._appliedMaxWidth = null;
 
@@ -94,7 +95,10 @@ class NowPlayingIndicator extends PanelMenu.Button {
         this._coverBin.connect('clicked', () => {
             this.menu.close();
             // Activate after the menu's grab is released, or focus goes back to the previous window.
-            GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
+            if (this._raiseId)
+                GLib.source_remove(this._raiseId);
+            this._raiseId = GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
+                this._raiseId = 0;
                 this._raisePlayer();
                 return GLib.SOURCE_REMOVE;
             });
@@ -225,6 +229,10 @@ class NowPlayingIndicator extends PanelMenu.Button {
         if (this._refreshId) {
             GLib.source_remove(this._refreshId);
             this._refreshId = 0;
+        }
+        if (this._raiseId) {
+            GLib.source_remove(this._raiseId);
+            this._raiseId = 0;
         }
         this._label.destroy();
         super._onDestroy();

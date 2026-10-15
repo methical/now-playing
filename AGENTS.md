@@ -50,6 +50,21 @@ Fake player for manual testing: `FAKE_NAME=x FAKE_TITLE=… FAKE_ARTIST=… FAKE
 - Wayland cannot reload extensions. Test in a nested shell (`gnome-shell --devkit`, needs `mutter-devkit`) or log out and in.
 - Don't commit `.superpowers/` (SDD scratch workspace, git-ignored).
 
+## extensions.gnome.org review rules
+
+The extension is meant for ego, so keep to https://gjs.guide/extensions/review-guidelines/review-guidelines.html. Last audited at v0.1.2. What matters here:
+
+- **Nothing before `enable()`.** The `Extension` constructor and module scope may only hold static data (`registerClass`, constants, `Gio._promisify`). Create objects, connect signals and add sources in `enable()`.
+- **`disable()` undoes everything.** Destroy every widget and object, disconnect every signal and remove every main loop source, even ones that return `SOURCE_REMOVE` on their own. Store each `GLib.idle_add` / `timeout_add` ID and remove it in `_onDestroy` (the cover-click raise once leaked one).
+- **No cross-process imports.** `extension.js` and the modules it loads must not import Gtk, Gdk or Adw. `prefs.js` and `names.js` must not import Clutter, Meta, St or Shell.
+- **No deprecated modules** (`ByteArray`, `Lang`, `Mainloop`). No `run_dispose`, no subprocesses or binaries, no clipboard, no telemetry.
+- **Logging stays sparse.** `console.debug` for recoverable failures only, never per-frame or per-tick.
+- **Code must be readable.** No minified or obfuscated code, and no comments that read like LLM prompts. The maintainer must be able to explain all of it. Reviewers reject AI-looking output.
+- **`metadata.json`:** valid `uuid`, only stable `shell-version` entries, a `url` to the repo, no `version` key, no `session-modes` (user mode only), no unnecessary keys.
+- **Schema:** ID base `org.gnome.shell.extensions`, path base `/org/gnome/shell/extensions`, file named `<id>.gschema.xml`, and the XML shipped in the zip (the compiled file is not needed).
+- **Zip contents:** only what the extension needs. No tests, docs, screenshots or build scripts. Every new module goes into `--extra-source` in the Makefile.
+- **Licensing:** GPL-3.0-or-later. Code copied from another extension needs attribution in the shipped files. No trademarked logos or artwork.
+
 ## Releasing
 
 1. Bump `version-name` in `metadata.json` and add a dated section to `CHANGELOG.md` (semantic versioning).

@@ -13,4 +13,4 @@ integration:
 pack: schemas
 	gnome-extensions pack --force --schema=schemas/org.gnome.shell.extensions.now-playing.gschema.xml \
 	  --extra-source=util.js --extra-source=tracker.js --extra-source=names.js \
-	  --extra-source=mpris.js --extra-source=cover.js --extra-source=label.js .
+	  --extra-source=mpris.js --extra-source=cover.js --extra-source=label.js --extra-source=LICENSE .

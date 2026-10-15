@@ -21,7 +21,7 @@ Fake player for manual testing: `FAKE_NAME=x FAKE_TITLE=… FAKE_ARTIST=… FAKE
 - **Current player:** the pinned player if it is showable, else the most recently started playing player, else the most recently started paused-but-showable one. Pinning is cleared when the pinned player stops or quits.
 - **Visibility:** shown while Playing. After a pause it stays for `pause-hide-delay` seconds (0 = hide immediately) or indefinitely with `pause-hide-mode = never`. `Stopped` or a vanished player always hides. A player first seen already Paused counts as expired.
 - **Whitelist:** matches the bus-name suffix (`.instanceN` stripped, lowercased) or the player's `DesktopEntry`. Enabled with an empty list shows nothing, on purpose.
-- **Raise (cover click in the popup):** activate the app through the Shell using the MPRIS `DesktopEntry` first (focuses reliably on Wayland), else call MPRIS `Raise()` if `CanRaise`. With neither, the cover is not clickable.
+- **Raise (cover click in the popup):** find the app through the Shell from the MPRIS `DesktopEntry` (original case, then startup / desktop WM class, since e.g. Spotify reports `spotify` but ships `com.spotify.Client.desktop`) and focus its first window with `Main.activateWindow`; else call MPRIS `Raise()` if `CanRaise`. With neither, the cover is not clickable.
 - **Marquee** ping-pongs: pause, scroll to the end, pause, scroll back, repeat. It only runs when the text overflows `max-width` and the player is playing.
 
 ## Architecture (what isn't obvious from filenames)
@@ -39,11 +39,13 @@ Fake player for manual testing: `FAKE_NAME=x FAKE_TITLE=… FAKE_ARTIST=… FAKE
 - `PanelMenu.ButtonBox` already connects `destroy` → `this._onDestroy`. Override `_onDestroy` and end it with `super._onDestroy()`. Do not connect `destroy` again, or you leak the container and menu.
 - `ScrollingLabel`: a forced `set_width()` sticks as the preferred size. `_relayout` resets it with `set_width(-1)` before measuring. `setStyle` restarts the marquee, so only call it when values changed.
 - `Main.panel._leftBox` is private but is the accepted way to place the item at the end of the left box.
+- The popup cover is an `St.Button` inside an inert `PopupBaseMenuItem`. Item `activate` never fired for it, but child buttons get `clicked`. Raise runs in an idle callback after `menu.close()`, using `Main.activateWindow`; plain `app.activate()` or the player's own `Raise()` trips focus-stealing prevention and only shows a "… is ready" notification.
+- `desktopEntry` in the Tracker is lowercased for whitelist matching; use `desktopId` (original case) for Shell app lookups.
 - Cover art: `resolveCover` must never throw and only caches `image/*` bodies up to 5 MiB under `~/.cache/now-playing/`.
 
 ## Verification rules
 
-- Agents cannot run the Shell here. The maintainer has run v0.1.0 in a real session (panel, controls, popup, marquee, cover raise, zip install), but any new change touching St/Clutter/PanelMenu/PopupMenu is **unverified at runtime** until they try it, so state that plainly.
+- Agents cannot run the Shell here. The maintainer has run v0.1.1 in a real session (panel, controls, popup, marquee, cover raise, zip install), but any new change touching St/Clutter/PanelMenu/PopupMenu is **unverified at runtime** until they try it, so state that plainly.
 - Never `gnome-extensions enable`, symlink into `~/.local/share/gnome-shell/extensions`, or touch dconf without the user's go-ahead. That loads code into their live session.
 - Wayland cannot reload extensions. Test in a nested shell (`gnome-shell --devkit`, needs `mutter-devkit`) or log out and in.
 - Don't commit `.superpowers/` (SDD scratch workspace, git-ignored).

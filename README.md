@@ -78,3 +78,7 @@ FAKE_TITLE="Karma Police" FAKE_ARTIST="Radiohead" gjs -m tests/fake-player.js
 `FAKE_NAME`, `FAKE_ART` (for example `file:///path/to/image.png`) and `FAKE_STATUS` (`Playing` or `Paused`) are also supported.
 
 The player logic (`tracker.js`, `util.js`) is free of Shell imports, which keeps it testable without a running Shell. See [`AGENTS.md`](AGENTS.md) for architecture notes and pitfalls, and `docs/superpowers/` for the design spec and implementation plan.
+
+## License
+
+Copyright (C) methical. Licensed under the [GNU General Public License v3.0 or later](LICENSE) (GPL-3.0-or-later).

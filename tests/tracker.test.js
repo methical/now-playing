@@ -104,6 +104,13 @@ test('whitelist filters, matches instance ids and desktop entries', () => {
     assertEq(t.availablePlayers().map(p => p.id), ['plasma-browser-integration']);
 });
 
+test('keeps the original-case desktop entry for app lookup', () => {
+    const {t} = setup();
+    playing(t, SPOT, {desktopEntry: 'org.gnome.Rhythmbox3'});
+    assertEq(t.current()?.desktopId, 'org.gnome.Rhythmbox3');
+    assertEq(t.current()?.desktopEntry, 'org.gnome.rhythmbox3');
+});
+
 test('whitelist enabled with empty list shows nothing', () => {
     const {t} = setup({whitelistEnabled: true, whitelist: []});
     playing(t, SPOT);

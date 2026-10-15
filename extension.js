@@ -85,12 +85,20 @@ class NowPlayingIndicator extends PanelMenu.Button {
     }
 
     _buildMenu() {
+        // The item itself is inert: a child St.Button gets the click, like the panel controls.
         this._coverItem = new PopupMenu.PopupBaseMenuItem({reactive: false, can_focus: false});
-        this._coverItem.connect('activate', () => {
-            this.menu.close();
-            this._raisePlayer();
+        this._coverBin = new St.Button({
+            x_expand: true, x_align: Clutter.ActorAlign.CENTER,
+            reactive: false, can_focus: false, track_hover: true,
         });
-        this._coverBin = new St.Bin({x_expand: true, x_align: Clutter.ActorAlign.CENTER});
+        this._coverBin.connect('clicked', () => {
+            this.menu.close();
+            // Activate after the menu's grab is released, or focus goes back to the previous window.
+            GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
+                this._raisePlayer();
+                return GLib.SOURCE_REMOVE;
+            });
+        });
         this._coverItem.add_child(this._coverBin);
         this._coverItem.visible = false;
         this.menu.addMenuItem(this._coverItem);
@@ -124,8 +132,13 @@ class NowPlayingIndicator extends PanelMenu.Button {
 
     // The app the shown player belongs to, if the Shell knows it from the MPRIS DesktopEntry.
     _raiseApp(player) {
-        const entry = player?.desktopEntry.replace(/\.desktop$/, '');
-        return entry ? Shell.AppSystem.get_default().lookup_app(`${entry}.desktop`) : null;
+        const entry = player?.desktopId.replace(/\.desktop$/, '');
+        if (!entry)
+            return null;
+        // Some players report an id that differs from the desktop file (spotify vs com.spotify.Client).
+        const apps = Shell.AppSystem.get_default();
+        return apps.lookup_app(`${entry}.desktop`) ?? apps.lookup_startup_wmclass(entry) ??
+            apps.lookup_desktop_wmclass(entry);
     }
 
     _canRaise(player) {
@@ -139,7 +152,10 @@ class NowPlayingIndicator extends PanelMenu.Button {
         if (!cur)
             return;
         const app = this._raiseApp(cur);
-        if (app)
+        const window = app?.get_windows()[0];
+        if (window)
+            Main.activateWindow(window);
+        else if (app)
             app.activate();
         else if (cur.canRaise)
             this._source.raise(cur.busName);
@@ -172,8 +188,8 @@ class NowPlayingIndicator extends PanelMenu.Button {
         }
 
         const raisable = this._canRaise(cur);
-        this._coverItem.reactive = raisable;
-        this._coverItem.can_focus = raisable;
+        this._coverBin.reactive = raisable;
+        this._coverBin.can_focus = raisable;
         this._label.setText(formatLabel(cur, cur.identity));
         this._label.setPaused(cur.status !== 'Playing');
         this._play.icon.icon_name = cur.status === 'Playing'

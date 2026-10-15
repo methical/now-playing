@@ -4,6 +4,14 @@ All notable changes to this project are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project follows
 [Semantic Versioning](https://semver.org/).
 
+## [0.1.1] - 2026-10-15
+
+### Fixed
+
+- Clicking the cover in the popup now raises and focuses the player. The cover is a real button instead of an inert menu item, and the window is activated through the Shell after the menu has closed, so focus-stealing prevention no longer shows a "is ready" notification.
+- Players whose MPRIS `DesktopEntry` differs from their desktop file (for example Spotify, `spotify` vs `com.spotify.Client`) are now found through their window class.
+- Desktop entries with capital letters are looked up with their original case.
+
 ## [0.1.0] - 2026-10-15
 
 First version.
@@ -18,4 +26,5 @@ First version.
 - Optional whitelist of players, chosen from detected players or entered by name.
 - Preferences window (general and whitelist pages).
 
+[0.1.1]: https://github.com/methical/now-playing/releases/tag/v0.1.1
 [0.1.0]: https://github.com/methical/now-playing/releases/tag/v0.1.0

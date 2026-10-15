@@ -42,7 +42,7 @@ export class Tracker {
 
     addPlayer(busName, info = {}) {
         const p = {
-            busName, id: playerId(busName), identity: '', desktopEntry: '',
+            busName, id: playerId(busName), identity: '', desktopEntry: '', desktopId: '',
             status: 'Stopped', title: '', artist: '', artUrl: '',
             canPrev: false, canNext: false, canControl: false, canRaise: false,
             playSeq: 0, pausedAt: 0,
@@ -114,8 +114,10 @@ export class Tracker {
     _apply(p, patch, initial) {
         if (patch.identity !== undefined)
             p.identity = patch.identity;
-        if (patch.desktopEntry !== undefined)
+        if (patch.desktopEntry !== undefined) {
+            p.desktopId = patch.desktopEntry;
             p.desktopEntry = patch.desktopEntry.toLowerCase();
+        }
         if (patch.metadata !== undefined)
             Object.assign(p, parseMetadata(patch.metadata));
         for (const k of ['canPrev', 'canNext', 'canControl', 'canRaise']) {

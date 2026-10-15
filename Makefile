@@ -1,4 +1,4 @@
-UUID = now-playing@chris
+UUID = now-playing@methical
 
 .PHONY: schemas test integration pack
 schemas:

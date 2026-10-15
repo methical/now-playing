@@ -2,7 +2,7 @@
 
 GNOME Shell 50 extension (ES modules, GJS). Shows `Artist – Title` plus prev / play-pause / next in the **left** panel box for the current MPRIS player. It is hidden unless something is playing, with an optional player whitelist.
 
-- UUID `now-playing@chris`, schema `org.gnome.shell.extensions.now-playing`.
+- UUID `now-playing@methical`, schema `org.gnome.shell.extensions.now-playing`.
 - Spec: `docs/superpowers/specs/2026-10-15-now-playing-design.md` (binding). Plan: `docs/superpowers/plans/2026-10-15-now-playing.md`.
 
 ## Commands

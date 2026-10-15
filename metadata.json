@@ -1,5 +1,5 @@
 {
-  "uuid": "now-playing@chris",
+  "uuid": "now-playing@methical",
   "name": "Now Playing",
   "description": "Shows the current song of any (or whitelisted) MPRIS player in the left panel, with prev / play-pause / next controls.",
   "shell-version": ["50"],

@@ -12,7 +12,7 @@
 
 ## Global Constraints
 
-- Extension UUID: `now-playing@chris`; GSettings schema id `org.gnome.shell.extensions.now-playing`, path `/org/gnome/shell/extensions/now-playing/`.
+- Extension UUID: `now-playing@methical`; GSettings schema id `org.gnome.shell.extensions.now-playing`, path `/org/gnome/shell/extensions/now-playing/`.
 - `metadata.json` `shell-version` is `["50"]`; ES-module extension format only.
 - Public APIs only (Gio, GLib, St, Clutter, Adw, Gtk, Soup); never import Shell's private `ui/mpris.js`.
 - Indicator lives in the panel **left box**; hidden unless a qualifying player is playing (or recently paused per pause rules).
@@ -71,13 +71,13 @@ tests/integration.js           MprisSource ↔ fake player over a private sessio
 - [ ] **Step 1: Init git and manifest**
 
 ```bash
-cd /home/chris/development/now-playing && git init
+cd ~/development/now-playing && git init
 ```
 
 `metadata.json`:
 ```json
 {
-  "uuid": "now-playing@chris",
+  "uuid": "now-playing@methical",
   "name": "Now Playing",
   "description": "Shows the current song of any (or whitelisted) MPRIS player in the left panel, with prev / play-pause / next controls.",
   "shell-version": ["50"],
@@ -120,7 +120,7 @@ schemas/gschemas.compiled
 
 `Makefile` (tabs for recipe indentation):
 ```make
-UUID = now-playing@chris
+UUID = now-playing@methical
 
 .PHONY: schemas test integration pack
 schemas:
@@ -1545,17 +1545,17 @@ export default class NowPlayingExtension extends Extension {
 
 ```bash
 make schemas
-ln -s /home/chris/development/now-playing ~/.local/share/gnome-shell/extensions/now-playing@chris
+ln -s ~/development/now-playing ~/.local/share/gnome-shell/extensions/now-playing@methical
 gnome-extensions list | grep now-playing
 ```
-Expected: `now-playing@chris` listed.
+Expected: `now-playing@methical` listed.
 
 - [ ] **Step 3: Load in a nested shell and check the log**
 
 ```bash
 rpm -q mutter-devkit || sudo dnf install -y mutter-devkit
 dbus-run-session -- bash -c '
-  gnome-extensions enable now-playing@chris
+  gnome-extensions enable now-playing@methical
   gjs -m tests/fake-player.js &
   FAKE_NAME=two FAKE_TITLE="A very long title that should overflow the configured width" FAKE_ARTIST="Long Artist" gjs -m tests/fake-player.js &
   gnome-shell --devkit 2>&1 | grep -iE "now-playing|error|exception"'
@@ -1569,7 +1569,7 @@ Expected: the nested shell opens with `⏮ ⏯ ⏭ <label>` at the right of the 
 - ⏭/⏮ change the title (`#2`, `#1`).
 - Clicking the label opens the popup: player list with the current one dotted; clicking another pins it (label switches, "(pinned)" shown); clicking again unpins; "Settings…" opens prefs (Task 8).
 - Popup cover art: relaunch a fake player with `FAKE_ART=file:///usr/share/backgrounds/default.png` (any image) → cover shows; with a bogus URL → popup opens without cover.
-- `gnome-extensions disable now-playing@chris` removes the indicator; re-enable works; `journalctl --user -b | grep -i now-playing` shows no leaked-actor warnings.
+- `gnome-extensions disable now-playing@methical` removes the indicator; re-enable works; `journalctl --user -b | grep -i now-playing` shows no leaked-actor warnings.
 
 - [ ] **Step 5: Commit**
 
@@ -1777,7 +1777,7 @@ export default class NowPlayingPrefs extends ExtensionPreferences {
 
 - [ ] **Step 2: Manual verification**
 
-Run: `gnome-extensions prefs now-playing@chris` (works outside the nested shell too).
+Run: `gnome-extensions prefs now-playing@methical` (works outside the nested shell too).
 Expected: General and Whitelist pages render. Check:
 - Changing overflow / width / button toggles / pause mode updates the nested-shell indicator live (Task 7 environment).
 - Delay row is greyed out when mode is "Never".
@@ -1814,11 +1814,11 @@ With `overflow-style=marquee` and the long-title fake player: text pauses ~1.5 s
 - [ ] **Step 4: Package and install for real**
 
 ```bash
-rm ~/.local/share/gnome-shell/extensions/now-playing@chris   # remove the dev symlink
+rm ~/.local/share/gnome-shell/extensions/now-playing@methical   # remove the dev symlink
 make pack
-gnome-extensions install --force now-playing@chris.shell-extension.zip
+gnome-extensions install --force now-playing@methical.shell-extension.zip
 ```
-Then log out and in (Wayland), `gnome-extensions enable now-playing@chris`, and run Step 2's checks. Re-create the symlink only when developing again.
+Then log out and in (Wayland), `gnome-extensions enable now-playing@methical`, and run Step 2's checks. Re-create the symlink only when developing again.
 
 - [ ] **Step 5: Commit any fixes**
 

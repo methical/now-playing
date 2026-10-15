@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 export const MPRIS_PREFIX = 'org.mpris.MediaPlayer2.';
 
 export function playerId(busName) {

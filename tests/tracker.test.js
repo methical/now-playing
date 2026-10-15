@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 import {test, assert, assertEq} from './harness.js';
 import {FakeClock} from './fake-clock.js';
 import {Tracker} from '../tracker.js';

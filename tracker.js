@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 import {playerId, parseMetadata, isAllowed} from './util.js';
 
 const DEFAULTS = {

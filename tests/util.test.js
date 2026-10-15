@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 import {test, assertEq} from './harness.js';
 import {playerId, parseMetadata, formatLabel, isAllowed} from '../util.js';
 

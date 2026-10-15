@@ -88,20 +88,17 @@ export class ScrollingLabel {
         });
     }
 
-    _cycle(distance) {
+    // Ping-pong: pause, scroll to the end, pause, scroll back to the start, repeat.
+    _cycle(distance, forward = true) {
         const generation = this._generation;
         this._later(() => {
             this._label.ease({
-                translation_x: -distance,
+                translation_x: forward ? -distance : 0,
                 duration: Math.round(distance / PX_PER_SECOND * 1000),
-                mode: Clutter.AnimationMode.LINEAR,
+                mode: Clutter.AnimationMode.EASE_IN_OUT_SINE,
                 onComplete: () => {
-                    if (generation !== this._generation)
-                        return;
-                    this._later(() => {
-                        this._label.translation_x = 0;
-                        this._cycle(distance);
-                    });
+                    if (generation === this._generation)
+                        this._cycle(distance, !forward);
                 },
             });
         });

@@ -36,12 +36,19 @@ class NowPlayingIndicator extends PanelMenu.Button {
         this._label = new ScrollingLabel();
         for (const b of [this._prev, this._play, this._next])
             box.add_child(b.button);
-        box.add_child(this._label.actor);
+        // The PanelMenu.Button's own click gesture (recognize-on-press) would
+        // swallow presses on the control buttons, so disable it and toggle the
+        // menu only from the label.
+        this._clickGesture.set_enabled(false);
+        this._labelButton = new St.Button({
+            child: this._label.actor, reactive: true, can_focus: true, track_hover: true,
+        });
+        this._labelButton.connect('clicked', () => this.menu.toggle());
+        box.add_child(this._labelButton);
         this.add_child(box);
 
         this._buildMenu();
         this._unsubscribe = tracker.onChange(() => this._update());
-        this.connect('destroy', () => this._onDestroy());
         this._update();
     }
 
@@ -152,6 +159,7 @@ class NowPlayingIndicator extends PanelMenu.Button {
         this._cancellable.cancel();
         this._coverToken++;
         this._label.destroy();
+        super._onDestroy();
     }
 });
 

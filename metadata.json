@@ -3,5 +3,7 @@
   "name": "Now Playing",
   "description": "Shows the current song of any (or whitelisted) MPRIS player in the left panel, with prev / play-pause / next controls.",
   "shell-version": ["50"],
-  "settings-schema": "org.gnome.shell.extensions.now-playing"
+  "settings-schema": "org.gnome.shell.extensions.now-playing",
+  "version-name": "0.1.0",
+  "url": "https://github.com/methical/now-playing"
 }

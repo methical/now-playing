@@ -42,7 +42,7 @@ export class Tracker {
         const p = {
             busName, id: playerId(busName), identity: '', desktopEntry: '',
             status: 'Stopped', title: '', artist: '', artUrl: '',
-            canPrev: false, canNext: false, canControl: false,
+            canPrev: false, canNext: false, canControl: false, canRaise: false,
             playSeq: 0, pausedAt: 0,
         };
         this._players.set(busName, p);
@@ -116,7 +116,7 @@ export class Tracker {
             p.desktopEntry = patch.desktopEntry.toLowerCase();
         if (patch.metadata !== undefined)
             Object.assign(p, parseMetadata(patch.metadata));
-        for (const k of ['canPrev', 'canNext', 'canControl']) {
+        for (const k of ['canPrev', 'canNext', 'canControl', 'canRaise']) {
             if (patch[k] !== undefined)
                 p[k] = patch[k];
         }

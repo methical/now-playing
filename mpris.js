@@ -20,7 +20,11 @@ function readPlayer(proxy) {
 
 function readRoot(proxy) {
     const get = k => proxy.get_cached_property(k)?.unpack();
-    return {identity: get('Identity') ?? '', desktopEntry: get('DesktopEntry') ?? ''};
+    return {
+        identity: get('Identity') ?? '',
+        desktopEntry: get('DesktopEntry') ?? '',
+        canRaise: get('CanRaise') ?? false,
+    };
 }
 
 export class MprisSource {
@@ -66,6 +70,17 @@ export class MprisSource {
             await proxy.call(method, null, Gio.DBusCallFlags.NONE, -1, this._cancellable);
         } catch (e) {
             console.debug(`now-playing: ${method} on ${busName} failed: ${e.message}`);
+        }
+    }
+
+    async raise(busName) {
+        const proxy = this._entries.get(busName)?.root;
+        if (!proxy)
+            return;
+        try {
+            await proxy.call('Raise', null, Gio.DBusCallFlags.NONE, -1, this._cancellable);
+        } catch (e) {
+            console.debug(`now-playing: Raise on ${busName} failed: ${e.message}`);
         }
     }
 

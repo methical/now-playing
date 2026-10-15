@@ -2,6 +2,7 @@ import Clutter from 'gi://Clutter';
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import GObject from 'gi://GObject';
+import Shell from 'gi://Shell';
 import St from 'gi://St';
 import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
@@ -83,6 +84,10 @@ class NowPlayingIndicator extends PanelMenu.Button {
 
     _buildMenu() {
         this._coverItem = new PopupMenu.PopupBaseMenuItem({reactive: false, can_focus: false});
+        this._coverItem.connect('activate', () => {
+            this.menu.close();
+            this._raisePlayer();
+        });
         this._coverBin = new St.Bin({x_expand: true, x_align: Clutter.ActorAlign.CENTER});
         this._coverItem.add_child(this._coverBin);
         this._coverItem.visible = false;
@@ -115,6 +120,29 @@ class NowPlayingIndicator extends PanelMenu.Button {
         }
     }
 
+    // The app the shown player belongs to, if the Shell knows it from the MPRIS DesktopEntry.
+    _raiseApp(player) {
+        const entry = player?.desktopEntry.replace(/\.desktop$/, '');
+        return entry ? Shell.AppSystem.get_default().lookup_app(`${entry}.desktop`) : null;
+    }
+
+    _canRaise(player) {
+        return player !== null && (this._raiseApp(player) !== null || player.canRaise);
+    }
+
+    // Prefer the Shell's own activation (focuses the existing window reliably on Wayland);
+    // fall back to the player's MPRIS Raise().
+    _raisePlayer() {
+        const cur = this._tracker.current();
+        if (!cur)
+            return;
+        const app = this._raiseApp(cur);
+        if (app)
+            app.activate();
+        else if (cur.canRaise)
+            this._source.raise(cur.busName);
+    }
+
     async _loadCover(artUrl) {
         const token = ++this._coverToken;
         this._coverItem.visible = false;
@@ -141,6 +169,9 @@ class NowPlayingIndicator extends PanelMenu.Button {
             return;
         }
 
+        const raisable = this._canRaise(cur);
+        this._coverItem.reactive = raisable;
+        this._coverItem.can_focus = raisable;
         this._label.setText(formatLabel(cur, cur.identity));
         this._label.setPaused(cur.status !== 'Playing');
         this._play.icon.icon_name = cur.status === 'Playing'

@@ -10,6 +10,8 @@ const ART = env('FAKE_ART', '');
 const ROOT_XML = `<node><interface name="org.mpris.MediaPlayer2">
   <property name="Identity" type="s" access="read"/>
   <property name="DesktopEntry" type="s" access="read"/>
+  <property name="CanRaise" type="b" access="read"/>
+  <method name="Raise"/>
 </interface></node>`;
 
 const PLAYER_XML = `<node><interface name="org.mpris.MediaPlayer2.Player">
@@ -24,6 +26,14 @@ const PLAYER_XML = `<node><interface name="org.mpris.MediaPlayer2.Player">
 class Root {
     get Identity() { return `Fake ${env('FAKE_NAME', 'fake')}`; }
     get DesktopEntry() { return ''; }
+    get CanRaise() { return true; }
+
+    // FAKE_RAISE_FILE: touched when Raise() is called (used by the integration test).
+    Raise() {
+        const path = GLib.getenv('FAKE_RAISE_FILE');
+        if (path)
+            GLib.file_set_contents(path, 'raised');
+    }
 }
 
 class Player {

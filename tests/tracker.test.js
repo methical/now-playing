@@ -147,6 +147,16 @@ test('pin is cleared when the pinned player stops', () => {
     assertEq(t.pinnedBusName, null);
 });
 
+test('canRaise is carried from addPlayer and updatePlayer', () => {
+    const {t} = setup();
+    playing(t, SPOT);
+    assertEq(t.current().canRaise, false);
+    t.updatePlayer(SPOT, {canRaise: true});
+    assertEq(t.current().canRaise, true);
+    playing(t, FF, {canRaise: true});
+    assertEq(t.current().canRaise, true);
+});
+
 test('pinning an unknown player is ignored', () => {
     const {t} = setup();
     playing(t, SPOT);

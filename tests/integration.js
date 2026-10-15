@@ -28,12 +28,19 @@ async function main() {
     const source = new MprisSource(tracker);
     await source.start();
 
+    const [fd, raiseFile] = GLib.file_open_tmp('np-raise-XXXXXX');
+    GLib.close(fd);
+    GLib.unlink(raiseFile);
+    GLib.setenv('FAKE_RAISE_FILE', raiseFile, true);
     const proc = Gio.Subprocess.new(['gjs', '-m', fakePath], Gio.SubprocessFlags.NONE);
     try {
         await waitFor(() => tracker.current()?.title === 'Karma Police', 'player discovered');
         const cur = tracker.current();
-        if (cur.artist !== 'Radiohead' || cur.status !== 'Playing' || !cur.canNext)
+        if (cur.artist !== 'Radiohead' || cur.status !== 'Playing' || !cur.canNext || !cur.canRaise)
             throw new Error(`bad initial state: ${JSON.stringify(cur)}`);
+
+        await source.raise(cur.busName);
+        await waitFor(() => GLib.file_test(raiseFile, GLib.FileTest.EXISTS), 'Raise reaches the player');
 
         await source.call(cur.busName, 'PlayPause');
         await waitFor(() => tracker.current()?.status === 'Paused', 'PlayPause → Paused');
@@ -48,6 +55,7 @@ async function main() {
             'player removal');
     } finally {
         proc.force_exit();
+        GLib.unlink(raiseFile);
         source.stop();
         tracker.destroy();
     }

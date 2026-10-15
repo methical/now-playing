@@ -42,10 +42,10 @@ export class MprisSource {
                 if (oldOwner)
                     this._drop(name);
                 if (newOwner)
-                    this._watch(name);
+                    this._watch(name).catch(e => console.debug(`now-playing: watch ${name}: ${e.message}`));
             });
         for (const name of await listMprisNames(this._cancellable))
-            this._watch(name);
+            this._watch(name).catch(e => console.debug(`now-playing: watch ${name}: ${e.message}`));
     }
 
     stop() {

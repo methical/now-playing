@@ -53,6 +53,9 @@ export class ScrollingLabel {
 
     _relayout() {
         this._stopMarquee();
+        // Not on stage yet (or unmapped): the notify::mapped handler re-runs this.
+        if (!this.actor.get_stage())
+            return;
         this._label.set_width(-1);
         const text = this._label.clutter_text;
         const [, naturalW] = this._label.get_preferred_width(-1);

@@ -136,6 +136,17 @@ test('pinned player that quits or stops falls back', () => {
     assertEq(t.pinnedBusName, null);
 });
 
+test('pin is cleared when the pinned player stops', () => {
+    const {t} = setup();
+    playing(t, SPOT);
+    playing(t, FF);
+    t.togglePin(SPOT);
+    t.updatePlayer(SPOT, {status: 'Stopped'});
+    t.updatePlayer(SPOT, {status: 'Paused'});
+    assertEq(t.current().id, 'firefox');
+    assertEq(t.pinnedBusName, null);
+});
+
 test('pinning an unknown player is ignored', () => {
     const {t} = setup();
     playing(t, SPOT);

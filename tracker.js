@@ -122,6 +122,8 @@ export class Tracker {
         }
         if (patch.status !== undefined && patch.status !== p.status) {
             p.status = patch.status;
+            if (p.status === 'Stopped' && this._pinned === p.busName)
+                this._pinned = null;
             if (p.status === 'Playing')
                 p.playSeq = ++this._seq;
             else if (p.status === 'Paused')

@@ -26,6 +26,7 @@ class NowPlayingIndicator extends PanelMenu.Button {
         this._cancellable = new Gio.Cancellable();
         this._coverToken = 0;
         this._artUrl = null;
+        this._refreshId = 0;
         this._appliedOverflow = null;
         this._appliedMaxWidth = null;
 
@@ -39,7 +40,7 @@ class NowPlayingIndicator extends PanelMenu.Button {
         // The PanelMenu.Button's own click gesture (recognize-on-press) would
         // swallow presses on the control buttons, so disable it and toggle the
         // menu only from the label.
-        this._clickGesture.set_enabled(false);
+        this._clickGesture?.set_enabled(false);
         this._labelButton = new St.Button({
             child: this._label.actor, reactive: true, can_focus: true, track_hover: true,
         });
@@ -106,7 +107,10 @@ class NowPlayingIndicator extends PanelMenu.Button {
             const item = new PopupMenu.PopupMenuItem(`${p.identity || p.id}${pinned ? ' (pinned)' : ''}`);
             item.setOrnament(cur?.busName === p.busName
                 ? PopupMenu.Ornament.DOT : PopupMenu.Ornament.NONE);
-            item.connect('activate', () => this._tracker.togglePin(p.busName));
+            item.connect('activate', () => {
+                this.menu.close();
+                this._tracker.togglePin(p.busName);
+            });
             this._playerSection.addMenuItem(item);
         }
     }
@@ -151,13 +155,28 @@ class NowPlayingIndicator extends PanelMenu.Button {
             this._loadCover(cur.artUrl).catch(e => console.debug(`now-playing: ${e.message}`));
         }
         if (this.menu.isOpen)
-            this._refreshPlayers();
+            this._scheduleRefresh();
+    }
+
+    _scheduleRefresh() {
+        if (this._refreshId)
+            return;
+        this._refreshId = GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
+            this._refreshId = 0;
+            if (this.menu.isOpen)
+                this._refreshPlayers();
+            return GLib.SOURCE_REMOVE;
+        });
     }
 
     _onDestroy() {
         this._unsubscribe();
         this._cancellable.cancel();
         this._coverToken++;
+        if (this._refreshId) {
+            GLib.source_remove(this._refreshId);
+            this._refreshId = 0;
+        }
         this._label.destroy();
         super._onDestroy();
     }

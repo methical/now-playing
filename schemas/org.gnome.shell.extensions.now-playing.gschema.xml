@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.gnome.shell.extensions.now-playing" path="/org/gnome/shell/extensions/now-playing/">
+    <key name="whitelist-enabled" type="b"><default>false</default></key>
+    <key name="whitelist" type="as"><default>[]</default></key>
+    <key name="overflow-style" type="s">
+      <choices><choice value="ellipsis"/><choice value="marquee"/></choices>
+      <default>"ellipsis"</default>
+    </key>
+    <key name="max-width" type="i"><range min="100" max="1000"/><default>300</default></key>
+    <key name="show-prev" type="b"><default>true</default></key>
+    <key name="show-playpause" type="b"><default>true</default></key>
+    <key name="show-next" type="b"><default>true</default></key>
+    <key name="pause-hide-mode" type="s">
+      <choices><choice value="delay"/><choice value="never"/></choices>
+      <default>"delay"</default>
+    </key>
+    <key name="pause-hide-delay" type="i"><range min="0" max="600"/><default>30</default></key>
+    <key name="open-page" type="s"><default>""</default></key>
+  </schema>
+</schemalist>

@@ -85,6 +85,7 @@ Buttons keep their own click behavior; clicking the label opens a `PopupMenu`:
 | `show-prev` / `show-playpause` / `show-next` | bool | true |
 | `pause-hide-mode` | enum: delay / never | delay |
 | `pause-hide-delay` | int (s) | 30 |
+| `open-page` | s | "" |
 
 Prefs window (Adw): a general page (overflow, width, buttons, pause behavior)
 and a whitelist page — mode switch, list of whitelisted players with remove,
@@ -94,7 +95,9 @@ players, plus manual entry.
 ## Modules
 
 - `extension.js` — enable/disable, indicator, popup wiring.
-- `mpris.js` — tracker (no UI imports; testable in isolation).
+- `util.js` — pure helpers.
+- `tracker.js` — pure tracker (no UI imports; testable in isolation); `mpris.js` is only the Gio adapter.
+- `names.js`, `cover.js`.
 - `label.js` — ellipsis/marquee St widget.
 - `prefs.js` — Adw preferences.
 - `schemas/org.gnome.shell.extensions.now-playing.gschema.xml`

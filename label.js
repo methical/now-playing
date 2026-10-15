@@ -53,6 +53,7 @@ export class ScrollingLabel {
 
     _relayout() {
         this._stopMarquee();
+        this._label.set_width(-1);
         const text = this._label.clutter_text;
         const [, naturalW] = this._label.get_preferred_width(-1);
         const [, naturalH] = this._label.get_preferred_height(naturalW);
